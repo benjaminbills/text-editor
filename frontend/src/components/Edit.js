@@ -1,31 +1,25 @@
 import React, { useEffect, useState } from "react";
-import "./App.css";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
-import ReactQuill from "react-quill";
-import "react-quill/dist/quill.snow.css";
 import axios from "axios";
-import Edit from "./components/Edit";
-function App() {
-  const [value, setValue] = useState("");
-  const [title, setTitle] = useState("");
-  const submitHandler = (e) => {
-    e.preventDefault();
+
+function Edit() {
+  useEffect(() => {
     const config = {
       headers: {
         "Content-type": "application/json",
       },
     };
-    // console.log(title);
-    axios.post(
-      "http://127.0.0.1:8000/post/add",
-      { title: title, body: value },
-      config
-    );
-  };
+    axios.get("http://127.0.0.1:8000/post/get/1", config).then((response) => {
+      setValue(response.data.body);
+    });
+  }, []);
+  const [value, setValue] = useState("");
+
+  const [title, setTitle] = useState("");
   return (
     <div className="App">
-      <form onSubmit={submitHandler}>
+      <form>
         <input value={title} onChange={(e) => setTitle(e.target.value)} />
         {/* <ReactQuill theme="snow" value={value} onChange={setValue} /> */}
         <CKEditor
@@ -40,7 +34,7 @@ function App() {
           //     "MediaEmbed",
           //   ],
           // }}
-          data="<p>Hello from CKEditor 5!</p>"
+          data={value}
           onChange={(event, editor) => {
             const data = editor.getData();
             setValue(data);
@@ -48,9 +42,8 @@ function App() {
         />
         <button type="submit">Submit</button>
       </form>
-      <Edit />
     </div>
   );
 }
 
-export default App;
+export default Edit;
