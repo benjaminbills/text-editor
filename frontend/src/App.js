@@ -1,13 +1,17 @@
-import React, { useEffect, useState } from "react";
-import "./App.css";
-import { CKEditor } from "@ckeditor/ckeditor5-react";
-import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
-import ReactQuill from "react-quill";
-import "react-quill/dist/quill.snow.css";
+import React, { useState, useRef } from "react";
+import JoditEditor from "jodit-react";
 import axios from "axios";
 import Edit from "./components/Edit";
+import Test from "./components/Test";
+
 function App() {
-  const [value, setValue] = useState("");
+  const editor = useRef(null);
+  const config = {
+    readonly: false,
+    height: 400,
+  };
+
+  const [value, setValue] = useState("start");
   const [title, setTitle] = useState("");
   const submitHandler = (e) => {
     e.preventDefault();
@@ -16,39 +20,31 @@ function App() {
         "Content-type": "application/json",
       },
     };
-    // console.log(title);
+    console.log(title, value);
     axios.post(
       "http://127.0.0.1:8000/post/add",
       { title: title, body: value },
       config
     );
   };
+
   return (
     <div className="App">
       <form onSubmit={submitHandler}>
         <input value={title} onChange={(e) => setTitle(e.target.value)} />
         {/* <ReactQuill theme="snow" value={value} onChange={setValue} /> */}
-        <CKEditor
-          editor={ClassicEditor}
-          // config={{
-          //   removePlugins: [
-          //     "Image",
-          //     "ImageCaption",
-          //     "ImageStyle",
-          //     "ImageToolbar",
-          //     "ImageUpload",
-          //     "MediaEmbed",
-          //   ],
-          // }}
-          data="<p>Hello from CKEditor 5!</p>"
-          onChange={(event, editor) => {
-            const data = editor.getData();
-            setValue(data);
-          }}
+        <JoditEditor
+          ref={editor}
+          value={value}
+          config={config}
+          onBlur={(newContent) => setValue(newContent)}
         />
         <button type="submit">Submit</button>
       </form>
+
       <Edit />
+
+      <Test />
     </div>
   );
 }
